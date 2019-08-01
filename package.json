@@ -1,0 +1,29 @@
+{
+  "name": "figma-export-icons",
+  "version": "0.1.0",
+  "description": "Script to generate and download icons from a figma file",
+  "bin": {
+    "export-icons": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tsimenis/figma-export-icons.git"
+  },
+  "author": "George Tsimenis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tsimenis/figma-export-icons/issues"
+  },
+  "homepage": "https://github.com/tsimenis/figma-export-icons#readme",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "chalk": "^2.4.2",
+    "dotenv": "^8.0.0",
+    "mkdirp": "^0.5.1",
+    "ora": "^3.4.0",
+    "prompts": "^2.1.0"
+  }
+}
