@@ -1,4 +1,7 @@
+.DS_Store
 .idea
-icons-config.json
 node_modules
 .env
+
+#figma-export-icons
+icons-config.json
