@@ -67,22 +67,28 @@ Axios.interceptors.request.use((conf) => {
 const spinner = ora()
 
 function deleteIcons () {
-  const directory = Path.resolve(config.iconsPath)
-  if (!Fs.existsSync(directory)){
-    console.log(`Directory ${config.iconsPath} does not exist`)
-    if (mkdirp.sync(directory)) console.log(`Created directory ${config.iconsPath}`)
-  } else {
-    Fs.readdir(directory, (err, files) => {
-      if (err) throw err
-      spinner.start('Deleting directory contents')
-      files.forEach((file) => {
-        if (file !== 'README.md') {
-          Fs.unlinkSync(Path.join(directory, file))
-        }
+  return new Promise((resolve) => {
+    const directory = Path.resolve(config.iconsPath)
+    if (!Fs.existsSync(directory)){
+      console.log(`Directory ${config.iconsPath} does not exist`)
+      if (mkdirp.sync(directory)) {
+        console.log(`Created directory ${config.iconsPath}`)
+        resolve()
+      }
+    } else {
+      Fs.readdir(directory, (err, files) => {
+        if (err) throw err
+        spinner.start('Deleting directory contents')
+        files.forEach((file) => {
+          if (file !== 'README.md') {
+            Fs.unlinkSync(Path.join(directory, file))
+          }
+        })
+        spinner.succeed()
+        resolve()
       })
-      spinner.succeed()
-    })
-  }
+    }
+  })
 }
 
 function findDuplicates (propertyName, arr) {
@@ -183,12 +189,13 @@ function figmaExportIcons () {
     .then((res) => {
       getImages(res)
         .then((icons) => {
-          deleteIcons()
           console.log(`Api returned ${icons.length} icons`)
-          spinner.start('Downloading')
-          const AllIcons = icons.map(icon => downloadImage(icon.image, icon.name))
-          Promise.all(AllIcons).then(() => {
-            spinner.succeed(chalk.cyan.bold('Download Finished!'))
+          deleteIcons().then(() => {
+            spinner.start('Downloading')
+            const AllIcons = icons.map(icon => downloadImage(icon.image, icon.name))
+            Promise.all(AllIcons).then(() => {
+              spinner.succeed(chalk.cyan.bold('Download Finished!'))
+            })
           })
         })
         .catch((err) => {
