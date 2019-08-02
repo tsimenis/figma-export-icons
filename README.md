@@ -4,13 +4,19 @@
  
  ## Install
  ### Global
- `npm install -g figma-export-icons`
+ ```sh
+ npm install -g figma-export-icons`
+```
  ### Local
- `npm install figma-export-icons --save`
+```sh
+npm install figma-export-icons --save`
+```
  
  ## Usage
  If you have installed the module globally:
- `export-icons`
+ ```sh
+ export-icons
+```
  
  If you have installed it locally:
  
@@ -20,11 +26,17 @@ scripts: {
   'export-icons': 'export-icons'
 }
 ```
-and run `npm run export-icons`
+and run 
+```sh
+npm run export-icons
+```
 
 OR
 
-run it directly with `npx export-icons`
+run it directly with: 
+```sh
+npx export-icons
+```
  
  
 ## Note:
