@@ -2,20 +2,51 @@
 
  > Command line script to export and download icons from a Figma file using the Figma REST api.
  
- ## Install
- ### Global
- ```sh
- npm install -g figma-export-icons`
+ ## Description
+ 
+ Running the script will bring up a wizard to fill in the config for fetching the assets. You can also provide the icons-config.json yourself, then the wizard is skipped. 
+ After the config is provided, the figma file is fetched and parsed to find the icons frame, the files are downloaded and put locally in the directory provided in the config.
+ 
+ example config file:
+ 
+ ```json
+{
+  "figmaPersonalToken": "YOUR_PERSONAL_TOKEN",
+  "fileId": "FILE_ID",
+  "page": "Identity",
+  "frame": "Icons",
+  "iconsPath": "assets/svg/icons"
+}
 ```
- ### Local
+ 
+ ## Features
+ 
+ - Wizard to generate config, you will be prompted for any missing key
+ - icons-config.json is automatically added to .gitignore
+ - Directory to save the icons is created if it doesn't exist
+ - Icons are deleted from local directory when fetching new 
+ - Icons with the same name are marked with `${iconName}-duplicate-name.svg` so you can easily spot them and fix figma file
+ - Running the script with `-c` will clear the config and run the wizard again
+ 
+ ## Installation
+ 
+ Install the cli globally so you can use it on any directory
+ 
+ ```sh
+ npm install -g figma-export-icons
+```
+
+ Or if you prefer install it in your project
+ 
 ```sh
-npm install figma-export-icons --save`
+npm install figma-export-icons --save
 ```
  
  ## Usage
+ 
  If you have installed the module globally:
  ```sh
- export-icons
+ $ export-icons
 ```
  
  If you have installed it locally:
@@ -37,8 +68,4 @@ run it directly with:
 ```sh
 npx export-icons
 ```
- 
- 
-## Note:
- If icons in figma have the same name it will rename them to `${iconName}-duplicate-name.svg` and
- you will get an error in the console: Please fix the figma file to not contain duplicates
+
