@@ -1,5 +1,8 @@
 # figma-export-icons
 
+ <a href="https://www.npmjs.com/package/figma-export-icons"><img src="https://badgen.net/npm/v/figma-export-icons" alt="Version"></a>
+ <a href="https://www.npmjs.com/package/figma-export-icons"><img src="https://badgen.net/npm/dm/figma-export-icons" alt="Downloads"></a>
+
  > Command line script to export and download icons from a Figma file using the Figma REST api.
  
  ## Description
