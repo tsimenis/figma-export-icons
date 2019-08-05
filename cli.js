@@ -184,7 +184,7 @@ function downloadImage (url, name) {
 
 }
 
-function figmaExportIcons () {
+function exportIcons () {
   getFigmaFile()
     .then((res) => {
       getImages(res)
@@ -204,12 +204,12 @@ function figmaExportIcons () {
   })
 }
 
-function exportIcons () {
+function run () {
   updateGitIgnore()
   if (process.argv[2] && process.argv[2] === '-c') {
     deleteConfig()
   }
-  getConfig().then(() => figmaExportIcons())
+  getConfig().then(() => exportIcons())
 }
 
-exportIcons()
+run()
