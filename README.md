@@ -5,7 +5,7 @@
 
  > Command line script to export and download icons from a Figma file using the Figma REST api.
  
- ## Description
+## Description
  
  Running the script will bring up a wizard to fill in the config for fetching the assets. You can also provide the icons-config.json yourself, then the wizard is skipped. 
  After the config is provided, the figma file is fetched and parsed to find the icons frame, the files are downloaded and put locally in the directory provided in the config.
@@ -22,7 +22,7 @@
 }
 ```
  
- ## Features
+## Features
  
  - Wizard to generate config, you will be prompted for any missing key
  - icons-config.json is automatically added to .gitignore
@@ -45,7 +45,7 @@
 npm install figma-export-icons --save
 ```
  
- ## Usage
+## Usage
  
  If you have installed the module globally:
  ```sh
@@ -72,3 +72,6 @@ run it directly with:
 npx export-icons
 ```
 
+## Credits
+
+This script was developed and is part of our tools at [Qikker Online](https://qikkeronline.com).

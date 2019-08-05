@@ -161,7 +161,8 @@ function downloadImage (url, name) {
     })
     .catch((err) => {
       spinner.fail()
-      console.log(name, err.message)
+      console.log(name)
+      console.log(err.message)
       console.log(err.config.url)
       console.log('Please try again')
       process.exit(1)
