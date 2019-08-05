@@ -6,6 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const ora = require('ora')
 const chalk = require('chalk')
+const ui = require('cliui')({ width: 80 })
 const axios = require('axios')
 const prompts = require('prompts')
 const promptsList = require('./src/prompts')
@@ -101,7 +102,7 @@ function getFigmaFile () {
       .then((res) => {
         const endTime = new Date().getTime()
         spinner.succeed()
-        console.log(chalk.cyan.bold(`Finished in ${(endTime - res.config.startTime) / 1000}s`))
+        console.log(chalk.cyan.bold(`Finished in ${(endTime - res.config.startTime) / 1000}s\n`))
         const page = res.data.document.children.find(c => c.name === config.page)
         if (!page) {
           console.log(chalk.red.bold('Cannot find Icons Page, check your settings'))
@@ -159,14 +160,20 @@ function downloadImage (url, name) {
       res.data.pipe(writer)
     })
     .catch((err) => {
+      spinner.fail()
       console.log(name, err.message)
       console.log(err.config.url)
+      console.log('Please try again')
+      process.exit(1)
     })
 
   return new Promise((resolve, reject) => {
     writer.on('finish', () => {
       // console.log(`Saved ${name}.svg`)
-      resolve()
+      resolve({
+        name: `${name}.svg`,
+        size: fs.statSync(imagePath).size
+      })
     })
     writer.on('error', (err) => {
       console.log('error writting', err)
@@ -176,17 +183,42 @@ function downloadImage (url, name) {
 
 }
 
+function makeRow (a, b) {
+  return `  ${a}\t    ${b}\t`
+}
+
+function formatSize (size) {
+  return (size / 1024).toFixed(2) + ' KiB'
+}
+
+function makeResultsTable (results) {
+  ui.div(
+    makeRow(
+      chalk.cyan.bold(`File`),
+      chalk.cyan.bold(`Size`),
+    ) + `\n\n` +
+    results.map(asset => makeRow(
+      asset.name.includes('-duplicate-name')
+        ? chalk.red.bold(asset.name)
+        : chalk.green(asset.name),
+      formatSize(asset.size)
+    )).join(`\n`)
+  )
+  return ui.toString()
+}
+
 function exportIcons () {
   getFigmaFile()
     .then((res) => {
       getImages(res)
         .then((icons) => {
-          console.log(`Api returned ${icons.length} icons`)
+          console.log(`Api returned ${icons.length} icons\n`)
           deleteIcons().then(() => {
             spinner.start('Downloading')
             const AllIcons = icons.map(icon => downloadImage(icon.image, icon.name))
-            Promise.all(AllIcons).then(() => {
-              spinner.succeed(chalk.cyan.bold('Download Finished!'))
+            Promise.all(AllIcons).then((res) => {
+              spinner.succeed(chalk.cyan.bold('Download Finished!\n'))
+              console.log(`${makeResultsTable(res)}\n`)
             })
           })
         })
