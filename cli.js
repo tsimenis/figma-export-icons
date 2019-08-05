@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const defaults = require('./src/defaults')
-const figmaApiBase = 'https://api.figma.com/v1'
+const figma = require('./src/figma-client')
 const fs = require('fs')
 const path = require('path')
 const ora = require('ora')
@@ -11,16 +11,8 @@ const prompts = require('prompts')
 const promptsList = require('./src/prompts')
 const mkdirp = require('mkdirp')
 let config = {}
+let figmaClient
 const spinner = ora()
-
-axios.interceptors.request.use((conf) => {
-  conf.headers = {
-    'Content-Type': 'application/json',
-    'X-Figma-Token': config.figmaPersonalToken
-  }
-  conf.startTime = new Date().getTime()
-  return conf
-})
 
 function deleteConfig () {
   const configFile = path.resolve(defaults.configFileName)
@@ -105,7 +97,7 @@ function findDuplicates (propertyName, arr) {
 function getFigmaFile () {
   return new Promise((resolve) => {
     spinner.start('Fetching Figma file (this might take a while depending on the figma file size)')
-    axios.get(`${figmaApiBase}/files/${config.fileId}`)
+    figmaClient.get(`/files/${config.fileId}`)
       .then((res) => {
         const endTime = new Date().getTime()
         spinner.succeed()
@@ -141,7 +133,7 @@ function getImages (icons) {
   return new Promise((resolve) => {
     spinner.start('Fetching icon urls')
     const iconIds = icons.map(icon => icon.id).join(',')
-    axios.get(`${figmaApiBase}/images/${config.fileId}?ids=${iconIds}&format=svg`)
+    figmaClient.get(`/images/${config.fileId}?ids=${iconIds}&format=svg`)
       .then((res) => {
         spinner.succeed()
         const images = res.data.images
@@ -209,7 +201,10 @@ function run () {
   if (process.argv[2] && process.argv[2] === '-c') {
     deleteConfig()
   }
-  getConfig().then(() => exportIcons())
+  getConfig().then(() => {
+    figmaClient = figma(config.figmaPersonalToken)
+    exportIcons()
+  })
 }
 
 run()
