@@ -59,28 +59,73 @@ async function getPromptData ( list = promptsList ) {
   fs.writeFileSync('icons-config.json', JSON.stringify(config, null, 2))
 }
 
-function deleteIcons () {
+function createOutputDirectory () {
   return new Promise((resolve) => {
     const directory = path.resolve(config.iconsPath)
-    if (!fs.existsSync(directory)){
+    if (!fs.existsSync(directory)) {
       console.log(`Directory ${config.iconsPath} does not exist`)
       if (mkdirp.sync(directory)) {
         console.log(`Created directory ${config.iconsPath}`)
         resolve()
       }
     } else {
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err
-        spinner.start('Deleting directory contents')
-        files.forEach((file) => {
-          if (file !== 'README.md') {
-            fs.unlinkSync(path.join(directory, file))
-          }
-        })
-        spinner.succeed()
-        resolve()
-      })
+      resolve()
     }
+  })
+}
+
+function deleteIcon (iconPath) {
+  return new Promise((resolve) => {
+    fs.unlink(iconPath, (err) => {
+      if (err) throw err
+      // if no error, file has been deleted successfully
+      resolve()
+    })
+  })
+}
+
+function deleteDirectory (directory) {
+  return new Promise((resolve) => {
+    fs.rmdir(directory, (err) => {
+      if (err) throw err
+      resolve()
+    })
+  })
+}
+
+function deleteIcons () {
+  return new Promise((resolve) => {
+    const directory = path.resolve(config.iconsPath)
+    // read icons directory files
+    fs.readdir(directory, (err, files) => {
+      if (err) throw err
+      spinner.start('Deleting directory contents')
+      let filesToDelete = []
+      let subdirectories = []
+      files.forEach((file) => {
+        const hasSubdirectory = fs.lstatSync(path.join(directory, file)).isDirectory()
+        if (hasSubdirectory) {
+          const subdirectory = path.join(directory, file)
+          subdirectories.push(subdirectory)
+          // read subdirectory
+          fs.readdir(subdirectory, (err, files) => {
+            if (err) throw err
+            files.forEach(file => filesToDelete.push(deleteIcon(path.join(subdirectory, file))))
+          })
+        } else {
+          if (file !== 'README.md') {
+            filesToDelete.push(deleteIcon(path.join(directory, file)))
+          }
+        }
+      })
+      Promise.all(filesToDelete).then(() => {
+        const directoriesToDelete = subdirectories.map(subdirectory => deleteDirectory(subdirectory))
+        Promise.all(directoriesToDelete).then(() => {
+          spinner.succeed()
+          resolve()
+        })
+      })
+    })
   })
 }
 
@@ -151,7 +196,23 @@ function getImages (icons) {
 }
 
 function downloadImage (url, name) {
-  const imagePath = path.resolve(config.iconsPath, `${name}.svg`)
+  let nameClean = name
+  let directory = config.iconsPath
+  const idx = name.lastIndexOf('/')
+  if (idx !== -1) {
+    directory = directory + '/' + name.substring(0, idx)
+    nameClean = name.substring(idx + 1)
+    if (!fs.existsSync(directory)) {
+      if (mkdirp.sync(directory)) {
+        console.log(`\nCreated sub directory ${directory}`)
+        iconPath = directory
+      } else {
+        console.log('Cannot create directories')
+        process.exit(1)
+      }
+    }
+  }
+  const imagePath = path.resolve(directory, `${nameClean}.svg`)
   const writer = fs.createWriteStream(imagePath)
 
 
@@ -164,20 +225,20 @@ function downloadImage (url, name) {
       console.log(name)
       console.log(err.message)
       console.log(err.config.url)
-      console.log('Please try again')
+      console.log(chalk.red.bold('Something went wrong fetching the image from S3, please try again'),)
       process.exit(1)
     })
 
   return new Promise((resolve, reject) => {
     writer.on('finish', () => {
-      // console.log(`Saved ${name}.svg`)
+      // console.log(`Saved ${name}.svg`, fs.statSync(imagePath).size)
       resolve({
         name: `${name}.svg`,
         size: fs.statSync(imagePath).size
       })
     })
     writer.on('error', (err) => {
-      console.log('error writting', err)
+      console.log('error writting file', err)
       reject(err)
     })
   })
@@ -214,12 +275,16 @@ function exportIcons () {
       getImages(res)
         .then((icons) => {
           console.log(`Api returned ${icons.length} icons\n`)
-          deleteIcons().then(() => {
-            spinner.start('Downloading')
-            const AllIcons = icons.map(icon => downloadImage(icon.image, icon.name))
-            Promise.all(AllIcons).then((res) => {
-              spinner.succeed(chalk.cyan.bold('Download Finished!\n'))
-              console.log(`${makeResultsTable(res)}\n`)
+          createOutputDirectory()
+          .then(() => {
+            deleteIcons().then(() => {
+              spinner.start('Downloading')
+              const AllIcons = icons.map(icon => downloadImage(icon.image, icon.name))
+              // const AllIcons = []
+              Promise.all(AllIcons).then((res) => {
+                spinner.succeed(chalk.cyan.bold('Download Finished!\n'))
+                console.log(`${makeResultsTable(res)}\n`)
+              })
             })
           })
         })
