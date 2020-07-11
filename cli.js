@@ -11,6 +11,7 @@ const axios = require('axios')
 const prompts = require('prompts')
 const promptsList = require('./src/prompts')
 const mkdirp = require('mkdirp')
+const argv = require('minimist')(process.argv.slice(2))
 let config = {}
 let figmaClient
 const spinner = ora()
@@ -25,20 +26,23 @@ function deleteConfig () {
 
 function updateGitIgnore () {
   const ignorePath = '.gitignore'
+  const configPath = argv.config || defaults.configFileName
   const ignoreCompletePath = path.resolve(ignorePath)
-  const ignoreContent = '\n#figma-export-icons\nicons-config.json'
-  const ignore = fs.existsSync(ignoreCompletePath)
-    ? fs.readFileSync(ignoreCompletePath, 'utf-8')
-    : ''
-  if(!ignore.includes(ignoreContent)) {
-    fs.writeFileSync(ignoreCompletePath, ignore + ignoreContent)
-    console.log(`Updated ${ignorePath} : ${ignoreContent}`)
+  if (fs.existsSync(configPath)) {
+    const ignoreContent = `\n#figma-export-icons\n${configPath}`
+    const ignore = fs.existsSync(ignoreCompletePath)
+      ? fs.readFileSync(ignoreCompletePath, 'utf-8')
+      : ''
+    if(!ignore.includes(ignoreContent)) {
+      fs.writeFileSync(ignoreCompletePath, ignore + ignoreContent)
+      console.log(`Updated ${ignorePath} : ${ignoreContent}`)
+    }
   }
 }
 
 function getConfig () {
   return new Promise((resolve) => {
-    const configFile = path.resolve(defaults.configFileName)
+    const configFile = path.resolve(argv.config || defaults.configFileName)
     if (fs.existsSync(configFile)) {
       config = JSON.parse(fs.readFileSync(configFile, 'utf-8'))
       const missingConfig = promptsList.filter((q) => !config[q.name])
@@ -296,7 +300,7 @@ function exportIcons () {
 
 function run () {
   updateGitIgnore()
-  if (process.argv[2] && process.argv[2] === '-c') {
+  if (argv.c) {
     deleteConfig()
   }
   getConfig().then(() => {
