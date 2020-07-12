@@ -25,11 +25,12 @@
 ## Features
  
  - Wizard to generate config, you will be prompted for any missing key
- - icons-config.json is automatically added to .gitignore
+ - icons-config.json is automatically added to .gitignore if it exists
  - Directory to save the icons is created if it doesn't exist
  - Icons are deleted from local directory when fetching new 
  - Icons with the same name are marked with `${iconName}-duplicate-name.svg` so you can easily spot them and fix figma file
  - Running the script with `-c` will clear the config and run the wizard again
+ - You can use a custom path to your configuration file with `--config=path/to/config.json`
  
  ## Installation
  
