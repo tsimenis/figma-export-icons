@@ -14,7 +14,6 @@ const mkdirp = require('mkdirp')
 const argv = require('minimist')(process.argv.slice(2))
 let config = {}
 let figmaClient
-let icons
 const spinner = ora()
 
 function deleteConfig () {
@@ -158,22 +157,20 @@ function getFigmaFile () {
           console.log(chalk.red.bold('Cannot find Icons Page, check your settings'))
           return
         }
-        if (config.frame != -1) {
+        const shouldGetFrame = isNaN(config.frame) && parseInt(config.frame) !== -1
+        let iconsArray = page.children
+        if (shouldGetFrame) {
           if (!page.children.find(c => c.name === config.frame)) {
             console.log(chalk.red.bold('Cannot find Icons Frame in this Page, check your settings'))
             return
           }
-          icons = page.children.find(c => c.name === config.frame).children.map((icon) => {
-            return { id: icon.id, name: icon.name }
-          })
+          iconsArray = iconsArray.find(c => c.name === config.frame).children
         }
-        if (config.frame == -1) {
-          icons = page.children.map((icon) => {
-            return { id: icon.id, name: icon.name }
-          })
-        }
-      icons = findDuplicates('name', icons)
-      resolve(icons)
+        let icons = iconsArray.map((icon) => {
+          return { id: icon.id, name: icon.name }
+        })
+        icons = findDuplicates('name', icons)
+        resolve(icons)
       })
       .catch((err) => {
         spinner.fail()
