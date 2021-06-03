@@ -21,6 +21,8 @@
   "iconsPath": "assets/svg/icons"
 }
 ```
+Update: from > v1.3.0 you can set the frame to -1 and it will fetch the icons from the whole page.
+
  
 ## Features
  

@@ -157,12 +157,17 @@ function getFigmaFile () {
           console.log(chalk.red.bold('Cannot find Icons Page, check your settings'))
           return
         }
-        if (!page.children.find(c => c.name === config.frame)) {
-          console.log(chalk.red.bold('Cannot find Icons Frame in this Page, check your settings'))
-          return
+        const shouldGetFrame = isNaN(config.frame) && parseInt(config.frame) !== -1
+        let iconsArray = page.children
+        if (shouldGetFrame) {
+          if (!page.children.find(c => c.name === config.frame)) {
+            console.log(chalk.red.bold('Cannot find Icons Frame in this Page, check your settings'))
+            return
+          }
+          iconsArray = iconsArray.find(c => c.name === config.frame).children
         }
-        let icons = page.children.find(c => c.name === config.frame).children.map((icon) => {
-          return {id: icon.id, name: icon.name}
+        let icons = iconsArray.map((icon) => {
+          return { id: icon.id, name: icon.name }
         })
         icons = findDuplicates('name', icons)
         resolve(icons)
