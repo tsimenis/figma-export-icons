@@ -277,7 +277,9 @@ function makeResultsTable (results) {
   )
   return ui.toString()
 }
-
+function removeFromName(name) {
+  return name.replace(config.removeFromName, '')
+}
 function exportIcons () {
   getFigmaFile()
     .then((res) => {
@@ -288,7 +290,7 @@ function exportIcons () {
           .then(() => {
             deleteIcons().then(() => {
               spinner.start('Downloading')
-              const AllIcons = icons.map(icon => downloadImage(icon.image, icon.name))
+              const AllIcons = icons.map(icon => downloadImage(icon.image, removeFromName(icon.name)))
               // const AllIcons = []
               Promise.all(AllIcons).then((res) => {
                 spinner.succeed(chalk.cyan.bold('Download Finished!\n'))
