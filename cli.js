@@ -144,6 +144,15 @@ function findDuplicates (propertyName, arr) {
   }, [])
 }
 
+function getPathToFrame(root, current) {
+  if(!current.length) return root
+  const path = [...current]
+  name = path.shift()
+  const foundChild = root.children.find(c => c.name === name)
+  if (!foundChild) return root;
+  return getPathToFrame(foundChild, path)
+}
+
 function getFigmaFile () {
   return new Promise((resolve) => {
     spinner.start('Fetching Figma file (this might take a while depending on the figma file size)')
@@ -160,11 +169,12 @@ function getFigmaFile () {
         const shouldGetFrame = isNaN(config.frame) && parseInt(config.frame) !== -1
         let iconsArray = page.children
         if (shouldGetFrame) {
-          if (!page.children.find(c => c.name === config.frame)) {
+          const frameRoot = config.pathToFrame ? getPathToFrame(page, config.pathToFrame.split('/').filter(Boolean)) : page
+          if (!frameRoot.children.find(c => c.name === config.frame)) {
             console.log(chalk.red.bold('Cannot find Icons Frame in this Page, check your settings'))
             return
           }
-          iconsArray = iconsArray.find(c => c.name === config.frame).children
+          iconsArray = frameRoot.children.find(c => c.name === config.frame).children
         }
         let icons = iconsArray.map((icon) => {
           return { id: icon.id, name: icon.name }
