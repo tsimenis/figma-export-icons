@@ -188,7 +188,7 @@ function getImages (icons) {
   return new Promise((resolve) => {
     spinner.start('Fetching icon urls')
     const iconIds = icons.map(icon => icon.id).join(',')
-    figmaClient.get(`/images/${config.fileId}?ids=${iconIds}&format=svg`)
+    figmaClient.get(`/images/${config.fileId}?ids=${iconIds}&format=${config.format}&scale=${config.scale}`)
       .then((res) => {
         spinner.succeed()
         const images = res.data.images
@@ -221,7 +221,8 @@ function downloadImage (url, name) {
       }
     }
   }
-  const imagePath = path.resolve(directory, `${nameClean}.svg`)
+  let suffix = config.scale == 1 ? '' : `@${config.scale}x`
+  const imagePath = path.resolve(directory, `${nameClean}${suffix}.${config.format}`)
   const writer = fs.createWriteStream(imagePath)
 
 
@@ -240,9 +241,9 @@ function downloadImage (url, name) {
 
   return new Promise((resolve, reject) => {
     writer.on('finish', () => {
-      // console.log(`Saved ${name}.svg`, fs.statSync(imagePath).size)
+      // console.log(`Saved ${name}.${config.format}`, fs.statSync(imagePath).size)
       resolve({
-        name: `${name}.svg`,
+        name: `${name}.${config.format}`,
         size: fs.statSync(imagePath).size
       })
     })
