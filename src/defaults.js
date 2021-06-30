@@ -3,7 +3,9 @@ const defaults = {
   page: 'Identity',
   frame: 'Icons',
   iconsPath: 'assets/svg/icons',
-  removeFromName: 'Icon='
+  removeFromName: 'Icon=',
+  format: "svg",
+  scale: 1
 }
 
 module.exports = defaults

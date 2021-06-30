@@ -16,7 +16,7 @@ const prompts = [
   {
     type: 'text',
     name: 'page',
-    message: 'Name of the page with icons?',
+    message: 'Name of the page with icons',
     initial: defaults.page
   },
   {
@@ -29,6 +29,18 @@ const prompts = [
     type: 'text',
     name: 'iconsPath',
     message: 'Directory to download the icons to',
+    initial: defaults.iconsPath
+  },
+  {
+    type: 'text',
+    name: 'format',
+    message: 'Icons format for export',
+    initial: defaults.iconsPath
+  },
+  {
+    type: 'text',
+    name: 'scale',
+    message: 'Icons scale (default 1)',
     initial: defaults.iconsPath
   }
 ]
