@@ -34,6 +34,7 @@ Update: from > v1.3.0 you can set the frame to -1 and it will fetch the icons fr
  - Icons with the same name are marked with `${iconName}-duplicate-name.svg` so you can easily spot them and fix figma file
  - Running the script with `-c` will clear the config and run the wizard again
  - You can use a custom path to your configuration file with `--config=path/to/config.json`
+ - `frame` can be a path if your icons are nested, e.g. `frame="Atoms/icons"`
 
  ## Installation
 
