@@ -178,9 +178,18 @@ function getFigmaFile () {
           }
           iconsArray = frameRoot.children.find(c => c.name === frameName).children
         }
-        let icons = iconsArray.map((icon) => {
-          return { id: icon.id, name: icon.name }
-        })
+        let icons = iconsArray.flatMap((icon) => {
+          if ( config.exportVariants &&  icon.children && icon.children.length > 0 ) {
+            return icon.children.map((child) => {
+              const variants = child.name.split(',').map((prop, index) => {
+                return prop.trim().replace('=', '-').toLowerCase();
+              }).join('--');
+              return { id: child.id, name: icon.name + '__' + variants }
+            });
+          } else {
+            return [{ id: icon.id, name: icon.name }]
+          }
+        });
         icons = findDuplicates('name', icons)
         resolve(icons)
       })

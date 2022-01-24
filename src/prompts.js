@@ -30,6 +30,14 @@ const prompts = [
     name: 'iconsPath',
     message: 'Directory to download the icons to',
     initial: defaults.iconsPath
+  },
+  {
+    type: 'toggle',
+    name: 'exportVariants',
+    message: 'Export variants as individual icons',
+    initial: defaults.exportVariants,
+    active: 'yes',
+    inactive: 'no'
   }
 ]
 
