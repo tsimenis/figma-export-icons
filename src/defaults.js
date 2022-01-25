@@ -3,7 +3,8 @@ const defaults = {
   page: 'Identity',
   frame: 'Icons',
   iconsPath: 'assets/svg/icons',
-  removeFromName: 'Icon='
+  removeFromName: 'Icon=',
+  maxConcurrentConnections: 500
 }
 
 module.exports = defaults

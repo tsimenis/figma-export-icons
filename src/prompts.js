@@ -30,6 +30,14 @@ const prompts = [
     name: 'iconsPath',
     message: 'Directory to download the icons to',
     initial: defaults.iconsPath
+  },
+  {
+    type: 'number',
+    name: 'maxConcurrentConnections',
+    message: 'Maximum amount of concurrent S3 connections',
+    initial: defaults.maxConcurrentConnections,
+    min: 1,
+    max: 1000
   }
 ]
 

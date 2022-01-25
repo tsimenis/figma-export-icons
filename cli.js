@@ -292,6 +292,15 @@ function makeResultsTable (results) {
 function removeFromName(name) {
   return name.replace(config.removeFromName, '')
 }
+function chunk(arr, chunkSize) {
+  let chunks = [], i = 0;
+
+  while(i < arr.length) {
+    chunks.push(arr.slice(i, i += chunkSize))
+  }
+
+  return chunks;
+}
 function exportIcons () {
   getFigmaFile()
     .then((res) => {
@@ -300,14 +309,18 @@ function exportIcons () {
           console.log(`Api returned ${icons.length} icons\n`)
           createOutputDirectory()
           .then(() => {
-            deleteIcons().then(() => {
-              spinner.start('Downloading')
-              const AllIcons = icons.map(icon => downloadImage(icon.image, removeFromName(icon.name)))
-              // const AllIcons = []
-              Promise.all(AllIcons).then((res) => {
-                spinner.succeed(chalk.cyan.bold('Download Finished!\n'))
-                console.log(`${makeResultsTable(res)}\n`)
-              })
+            deleteIcons().then(async () => {
+              spinner.start('Downloading chunks')
+              const chunks = chunk(icons, config.maxConcurrentConnections || defaults.maxConcurrentConnections);
+              let allIcons = [];
+              for(let i = 0; i<chunks.length; i++) {
+                spinner.start(`Downloading chunks ${i} of ${chunks.length}`);
+                const chunkPromise = chunks[i].map(icon => downloadImage(icon.image, removeFromName(icon.name)));
+                const chunkIcons = await Promise.all(chunkPromise);
+                allIcons = allIcons.concat(chunkIcons);
+              }
+              spinner.succeed(chalk.cyan.bold('Download Finished!\n'))
+              console.log(`${makeResultsTable(allIcons)}\n`)
             })
           })
         })
