@@ -318,13 +318,15 @@ function exportIcons () {
 }
 
 function run () {
-  updateGitIgnore()
   if (argv.c) {
     deleteConfig()
   }
   getConfig().then(() => {
     figmaClient = figma(config.figmaPersonalToken)
     exportIcons()
+    if (config.gitIgnore) {
+      updateGitIgnore();
+    }
   })
 }
 
